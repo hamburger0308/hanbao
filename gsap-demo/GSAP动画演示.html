@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>GSAP 技能演示 · 网页动画实战</title>
+<style>
+:root{
+  --bg:#0b0e11;
+  --panel:#12171c;
+  --panel2:#0f1419;
+  --line:#232b33;
+  --text:#e8edf0;
+  --muted:#8a94a0;
+  --accent:#0ae448;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+section{position:relative;padding:110px 0}
+.sec-tag{display:inline-block;font-size:13px;letter-spacing:.14em;color:var(--accent);border:1px solid rgba(10,228,72,.35);border-radius:999px;padding:6px 14px;margin-bottom:18px}
+h2{font-size:clamp(28px,4.6vw,44px);line-height:1.15;font-weight:800;letter-spacing:-.02em}
+.sub{color:var(--muted);margin-top:14px;font-size:16px;line-height:1.7;max-width:600px}
+/* ===== hero ===== */
+#hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:120px 0}
+.hero-inner{position:relative;z-index:2}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--accent);background:rgba(10,228,72,.08);border:1px solid rgba(10,228,72,.3);padding:7px 14px;border-radius:999px;margin-bottom:26px}
+.hero-line{display:block;font-size:clamp(40px,8vw,84px);font-weight:900;letter-spacing:-.03em;line-height:1.04}
+.hero-line .g{color:var(--accent)}
+.hero-sub{color:var(--muted);font-size:clamp(15px,2vw,19px);margin-top:22px;max-width:560px;line-height:1.8}
+.hero-cta{display:flex;gap:14px;margin-top:36px;flex-wrap:wrap}
+.btn{position:relative;border:none;cursor:pointer;font-size:15px;font-weight:600;padding:14px 26px;border-radius:12px;font-family:inherit;will-change:transform}
+.btn-primary{background:var(--accent);color:#04120a}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--accent)}
+.floating-cards{position:absolute;inset:0;pointer-events:none;z-index:1}
+.fcard{position:absolute;width:150px;height:96px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.fcard .k{font-size:12px;color:var(--muted)}
+.fcard .v{font-size:19px;font-weight:800;color:var(--accent)}
+.fcard .bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.fcard .bar i{display:block;height:100%;width:70%;background:var(--accent);border-radius:3px}
+.fcard.c1{top:16%;left:4%;transform:rotate(-6deg)}
+.fcard.c2{top:52%;left:70%;transform:rotate(5deg)}
+.fcard.c3{bottom:14%;left:24%;transform:rotate(-3deg)}
+@media(max-width:760px){.fcard{width:118px;height:80px}.fcard .v{font-size:15px}.fcard.c2{left:58%}}
+/* ===== 交互演示 ===== */
+.inter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:46px}
+.icard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;cursor:pointer;will-change:transform;user-select:none}
+.icard h3{font-size:18px;font-weight:700;margin-bottom:10px}
+.icard p{color:var(--muted);font-size:14px;line-height:1.7}
+.icard .hint{margin-top:16px;font-size:12px;color:var(--accent);opacity:.85}
+.icard .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);margin-bottom:14px;display:inline-block}
+.icard .num{font-size:30px;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums}
+/* ===== 滚动演示 ===== */
+.scroll-panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:clamp(30px,6vw,72px);text-align:center;overflow:hidden}
+.steps{max-width:540px;margin:26px auto 0;text-align:left;min-height:150px}
+.step{display:none}
+.step.on{display:block}
+.step .n{color:var(--accent);font-weight:800;font-size:15px}
+.step h3{font-size:22px;margin:8px 0}
+.step p{color:var(--muted);line-height:1.7;font-size:14px}
+.progress{height:8px;background:var(--line);border-radius:99px;margin-top:34px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left center;border-radius:99px}
+.scroll-hint{color:var(--muted);font-size:13px;margin-top:18px;letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.scroll-bigword{position:absolute;font-size:clamp(90px,20vw,240px);font-weight:900;color:rgba(255,255,255,.04);white-space:nowrap;top:58%;left:50%;pointer-events:none;user-select:none;transform:translateX(-50%)}
+/* ===== 时间线演示 ===== */
+.tl-stage{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:clamp(30px,6vw,60px);margin-top:46px}
+.tl-track{display:flex;gap:16px;flex-wrap:wrap;margin-top:30px}
+.tl-item{flex:1 1 190px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:20px;opacity:0}
+.tl-item .idx{font-size:12px;color:var(--muted);font-weight:700}
+.tl-item h4{font-size:16px;margin:8px 0 6px}
+.tl-item p{font-size:13px;color:var(--muted);line-height:1.6}
+.tl-cta{margin-top:30px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.tl-state{color:var(--muted);font-size:13px}
+footer{padding:50px 0 70px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center;line-height:1.8}
+footer b{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<header id="hero">
+  <div class="floating-cards" aria-hidden="true">
+    <div class="fcard c1"><span class="k">时间线</span><span class="v">timeline</span><span class="bar"><i></i></span></div>
+    <div class="fcard c2"><span class="k">滚动</span><span class="v">ScrollTrigger</span><span class="bar"><i style="width:45%"></i></span></div>
+    <div class="fcard c3"><span class="k">缓动</span><span class="v">power3.out</span><span class="bar"><i style="width:90%"></i></span></div>
+  </div>
+  <div class="wrap hero-inner">
+    <span class="badge">● GSAP · 官方技能演示</span>
+    <h1>
+      <span class="hero-line">动效不止<span class="g">看起来</span></span>
+      <span class="hero-line">更要<span class="g">跑得对</span></span>
+    </h1>
+    <p class="hero-sub">这一页由 GSAP 官方技能驱动：入场用 gsap.from 做 stagger，滚动由 ScrollTrigger 控制，顺序动画交给 timeline。滚动、悬停、点击，都有反馈；并自动尊重系统的「减少动态效果」设置。</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" data-action="scroll">看滚动演示</button>
+      <button class="btn btn-ghost" data-action="replay">重放入场动画</button>
+    </div>
+  </div>
+</header>
+
+<section id="interactive">
+  <div class="wrap">
+    <span class="sec-tag">01 · 核心 API</span>
+    <h2>悬停与点击，都有弹性反馈</h2>
+    <p class="sub">使用 transform 别名（x / y / scale）与内置缓动，hover 浮起、点击弹跳，不碰布局属性，保证流畅的 60fps。</p>
+    <div class="inter-grid">
+      <div class="icard" data-fx="hover"><span class="dot"></span><h3>hover 浮起</h3><p>鼠标移入时卡片上浮并微微放大，移出后回落；overwrite: "auto" 让动画自动接管、互不打架。</p><span class="hint">gsap.to · y / scale</span></div>
+      <div class="icard" data-fx="pop"><span class="dot" style="background:#FFD166"></span><h3>点击弹跳</h3><p>点击时卡片做 elastic 弹出再复位，像按了一个实体的按钮。</p><span class="hint">elastic.out · 点击反馈</span></div>
+      <div class="icard" data-fx="count"><span class="dot" style="background:#FF6B6B"></span><h3>数字滚动</h3><p>点击点赞，数字用属性动画平滑滚上去，onUpdate 实时刷新。</p><span class="hint">onUpdate · 属性补间</span><div style="margin-top:14px">点赞 <b class="num" id="likeNum">0</b></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="scroll-demo">
+  <div class="wrap" style="position:relative">
+    <span class="sec-tag">02 · ScrollTrigger</span>
+    <h2>滚动即进度</h2>
+    <p class="sub">继续往下滚：这块面板会被固定（pin），滚动位置直接驱动三步讲解的进度，松手即停、反向可逆。</p>
+    <div class="scroll-panel" id="scrollPanel">
+      <div class="steps">
+        <div class="step on"><span class="n">STEP 1</span><h3>先删，再加</h3><p>优先用 transform 别名实现位移动画，避免布局抖动；删不掉的动画才谈优化。</p></div>
+        <div class="step"><span class="n">STEP 2</span><h3>时间线代替 delay</h3><p>多步骤动画用 gsap.timeline 按位置参数编排，而不是给每个 tween 加 delay——顺序清晰、可整体控制。</p></div>
+        <div class="step"><span class="n">STEP 3</span><h3>滚动交给 ScrollTrigger</h3><p>scrub 让动画进度与滚动一一对应；布局变化后记得 ScrollTrigger.refresh()。</p></div>
+      </div>
+      <div class="progress"><i id="scrollBar"></i></div>
+      <div class="scroll-hint">向下滚动 · 进度 0%</div>
+    </div>
+  </div>
+  <div class="scroll-bigword" aria-hidden="true">SCROLL</div>
+</section>
+
+<section id="timeline-demo">
+  <div class="wrap">
+    <span class="sec-tag">03 · 时间线</span>
+    <h2>四步串成一个动画</h2>
+    <p class="sub">一条 timeline 顺序驱动四个步骤，位置参数交错；滚动进入视野自动播放，也可点按钮随时重放，整条动画可暂停、可反向。</p>
+    <div class="tl-stage">
+      <div class="tl-track" id="tlTrack">
+        <div class="tl-item"><span class="idx">01</span><h4>观察</h4><p>先看目标元素当前状态，确定动画起点。</p></div>
+        <div class="tl-item"><span class="idx">02</span><h4>编排</h4><p>用位置参数 "+=0.2" 让步骤自然衔接。</p></div>
+        <div class="tl-item"><span class="idx">03</span><h4>控制</h4><p>整条时间线可 pause / reverse / seek。</p></div>
+        <div class="tl-item"><span class="idx">04</span><h4>收尾</h4><p>onComplete 里更新状态，动画即产品。</p></div>
+      </div>
+      <div class="tl-cta">
+        <button class="btn btn-primary" id="tlReplay">重放时间线</button>
+        <span class="tl-state" id="tlState">滚动到本区域自动播放</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  由 GSAP 官方技能驱动 · 已自动尊重「减少动态效果」系统设置<br>
+  使用技能：<b>gsap-core</b> / <b>gsap-timeline</b> / <b>gsap-scrolltrigger</b>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const mm = gsap.matchMedia();
+
+/* 减少动态效果：所有动画归零，只保留内容可见 */
+mm.add("(prefers-reduced-motion: reduce)", () => {
+  gsap.set(".badge, .hero-line, .hero-sub, .hero-cta .btn, .sec-tag, h2, .sub, .tl-item, .icard", { autoAlpha: 1, y: 0 });
+  gsap.set("#scrollBar", { scaleX: 1 });
+  document.querySelectorAll(".step").forEach((el, i) => el.classList.toggle("on", i === 0));
+  return () => {};
+});
+
+mm.add("(prefers-reduced-motion: no-preference)", () => {
+
+  /* ===== Hero 入场：时间线 + stagger ===== */
+  const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+  heroTl.from(".badge", { y: -18, autoAlpha: 0, duration: 0.5 })
+        .from(".hero-line", { y: 70, autoAlpha: 0, duration: 0.8, stagger: 0.12 }, "-=0.2")
+        .from(".hero-sub", { y: 30, autoAlpha: 0, duration: 0.6 }, "-=0.45")
+        .from(".hero-cta .btn", { y: 24, autoAlpha: 0, duration: 0.5, stagger: 0.1 }, "-=0.3");
+
+  document.querySelector('[data-action="replay"]').addEventListener("click", () => heroTl.restart());
+
+  /* ===== 漂浮卡片：循环动画 ===== */
+  gsap.to(".fcard.c1", { y: -16, rotation: -2, duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: -1 });
+  gsap.to(".fcard.c2", { y: 14, rotation: 2, duration: 3.2, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.4 });
+  gsap.to(".fcard.c3", { y: -10, rotation: -1, duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.8 });
+
+  /* ===== 按钮微交互 ===== */
+  gsap.utils.toArray(".btn-primary").forEach((btn) => {
+    btn.addEventListener("mouseenter", () => gsap.to(btn, { scale: 1.05, duration: 0.25, ease: "power2.out", overwrite: "auto" }));
+    btn.addEventListener("mouseleave", () => gsap.to(btn, { scale: 1, duration: 0.3, ease: "power2.out", overwrite: "auto" }));
+  });
+  document.querySelector('[data-action="scroll"]').addEventListener("click", () => {
+    document.querySelector("#scroll-demo").scrollIntoView({ behavior: "smooth" });
+  });
+
+  /* ===== 交互卡片 ===== */
+  gsap.utils.toArray(".icard[data-fx=hover]").forEach((card) => {
+    card.addEventListener("mouseenter", () => gsap.to(card, { y: -8, scale: 1.03, duration: 0.3, ease: "power2.out", overwrite: "auto" }));
+    card.addEventListener("mouseleave", () => gsap.to(card, { y: 0, scale: 1, duration: 0.35, ease: "power2.out", overwrite: "auto" }));
+  });
+  gsap.utils.toArray(".icard[data-fx=pop]").forEach((card) => {
+    card.addEventListener("click", () => gsap.fromTo(card, { scale: 0.94 }, { scale: 1, duration: 0.55, ease: "elastic.out(1,0.4)", overwrite: "auto" }));
+  });
+  const likeNum = { v: 0 };
+  document.querySelector(".icard[data-fx=count]").addEventListener("click", () => {
+    gsap.to(likeNum, {
+      v: likeNum.v + 1, duration: 0.6, ease: "power1.out",
+      onUpdate: () => { document.querySelector("#likeNum").textContent = Math.round(likeNum.v); }
+    });
+  });
+
+  /* ===== ScrollTrigger：固定面板 + 滚动进度 ===== */
+  const steps = gsap.utils.toArray(".step");
+  const scrollTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#scrollPanel",
+      start: "top top",
+      end: "+=170%",
+      pin: true,
+      scrub: 1,
+      onUpdate: (self) => {
+        const p = self.progress;
+        const idx = p < 0.34 ? 0 : p < 0.67 ? 1 : 2;
+        steps.forEach((el, i) => el.classList.toggle("on", i === idx));
+        document.querySelector(".scroll-hint").textContent = "向下滚动 · 进度 " + Math.round(p * 100) + "%";
+      }
+    }
+  });
+  scrollTl.to("#scrollBar", { scaleX: 1, ease: "none" }, 0);
+
+  /* 背景大字视差 */
+  gsap.to(".scroll-bigword", {
+    xPercent: 26, ease: "none",
+    scrollTrigger: { trigger: "#scroll-demo", start: "top bottom", end: "bottom top", scrub: true }
+  });
+
+  /* ===== 时间线演示 ===== */
+  const tlItems = gsap.timeline({ paused: true, defaults: { ease: "back.out(1.6)" } });
+  tlItems.from(".tl-item", { autoAlpha: 0, y: 24, duration: 0.55, stagger: 0.18 });
+  tlItems.add(() => { document.querySelector("#tlState").textContent = "已完成 · 可再次重放"; });
+
+  ScrollTrigger.create({
+    trigger: "#tlTrack",
+    start: "top 75%",
+    once: true,
+    onEnter: () => tlItems.play()
+  });
+  document.querySelector("#tlReplay").addEventListener("click", () => {
+    document.querySelector("#tlState").textContent = "播放中…";
+    tlItems.restart();
+  });
+
+  return () => {};
+});
+</script>
+</body>
+</html>
